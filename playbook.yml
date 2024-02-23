@@ -1,19 +1,40 @@
 # Physical nodes
 # UFW enabled, allow SSH
-# 
 
-
-
-
-
-
-
-- name: My first play
-  hosts: all
+- name: Infrastructure Setup
+  hosts: physical
+  become: true
   tasks:
-   - name: Ping my hosts
-     ansible.builtin.ping:
+    - name: UFW - Allow SSH connections
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
 
-   - name: Print message
-     ansible.builtin.debug:
-      msg: Hello world
+    - name: UFW - Allow LXD connections
+      community.general.ufw:
+        rule: allow
+        port: 8443
+        proto: tcp
+
+    - name: UFW - Allow Ceph connections
+      community.general.ufw:
+        rule: allow
+        port: '3300,6789,6800:7300'
+        proto: tcp
+
+    - name: UFW - Allow OVN connections
+      community.general.ufw:
+        rule: allow
+        port: '6641:6642'
+        proto: tcp
+
+    - name: UFW - Allow OVN connections
+      community.general.ufw:
+        rule: allow
+        port: '6081'
+        proto: udp
+
+    - name: UFW - Enable and deny by default
+      community.general.ufw:
+        state: enabled
+        default: deny
