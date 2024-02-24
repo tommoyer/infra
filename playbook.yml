@@ -6,15 +6,15 @@
   become: true
   become_method: sudo
   tasks:
-    - name: UFW - Allow SSH connections
-      community.general.ufw:
-        rule: allow
-        name: OpenSSH
+    # - name: UFW - Allow SSH connections
+    #   community.general.ufw:
+    #     rule: allow
+    #     name: OpenSSH
 
-    - name: UFW - Enable and deny by default
-      community.general.ufw:
-        state: enabled
-        default: deny
+    # - name: UFW - Enable and deny by default
+    #   community.general.ufw:
+    #     state: enabled
+    #     default: deny
 
     - name: Disable password authentication
       lineinfile:
@@ -51,3 +51,10 @@
     - name: Hold microceph
       command: snap refresh --hold microceph
       when: '"hold:" not in microceph_result.stdout'
+
+    - name: Add admin user to microk8s group
+      ansible.builtin.user:
+        name: tmoyer
+        groups: microk8s
+        append: yes
+ 
