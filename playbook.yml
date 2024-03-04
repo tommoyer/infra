@@ -1,60 +1,15 @@
-# Physical nodes
-# UFW enabled, allow SSH
-
-- name: Infrastructure Setup
-  hosts: physical
+---
+- hosts: physical
   become: true
-  become_method: sudo
-  tasks:
-    # - name: UFW - Allow SSH connections
-    #   community.general.ufw:
-    #     rule: allow
-    #     name: OpenSSH
+  roles:
+    - base-config
 
-    # - name: UFW - Enable and deny by default
-    #   community.general.ufw:
-    #     state: enabled
-    #     default: deny
+- hosts: cloud
+  become: true
+  roles:
+    - microcloud
 
-    - name: Disable password authentication
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        state: present
-        regexp: '^#?PasswordAuthentication'
-        line: 'PasswordAuthentication no'
-
-    - name: Install microk8s
-      community.general.snap:
-        name: microk8s
-        state: present
-        channel: 1.28/stable
-        classic: true
-
-    - name: Get microk8s info
-      command: snap info microk8s
-      register: microk8s_result
-
-    - name: Hold microk8s
-      command: snap refresh --hold microk8s
-      when: '"hold:" not in microk8s_result.stdout'
-
-    - name: Install microceph
-      community.general.snap:
-        name: microceph
-        channel: reef/stable
-        state: present
-
-    - name: Get microceph info
-      command: snap info microceph
-      register: microceph_result
-
-    - name: Hold microceph
-      command: snap refresh --hold microceph
-      when: '"hold:" not in microceph_result.stdout'
-
-    - name: Add admin user to microk8s group
-      ansible.builtin.user:
-        name: tmoyer
-        groups: microk8s
-        append: yes
- 
+- hosts: auth
+  become: true
+  roles:
+    - ldap_server

@@ -1,0 +1,11 @@
+---
+roles:
+  - name: ldaptoolbox_openldap
+    src: https://github.com/ltb-project/ansible-role-ldaptoolbox-openldap
+    version: main
+
+collections:
+  # Install a collection from Ansible Galaxy.
+  - name: community.general
+    version: ">=7.0.0"
+    source: https://galaxy.ansible.com

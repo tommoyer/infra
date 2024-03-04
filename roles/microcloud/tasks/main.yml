@@ -1,0 +1,80 @@
+---
+# tasks file for microcloud
+
+- name: Get list of installed snaps
+  command: 'snap list'
+  register: installed_snaps
+
+- name: Install microcloud
+  command: 
+    argv:
+      - /usr/bin/snap
+      - install
+      - microcloud
+      - --cohort="+"
+      - --channel=latest/stable
+  when: '"microcloud" not in installed_snaps.stdout'
+
+- name: Install microceph
+  command:
+    argv:
+      - /usr/bin/snap
+      - install
+      - microceph
+      - --cohort=+
+      - --channel=quincy/stable
+  when: '"microceph" not in installed_snaps.stdout'
+
+- name: Install microovn
+  command:
+    argv:
+      - snap
+      - install
+      - microovn
+      - --cohort=+
+      - --channel=22.03/stable
+  when: '"microovn" not in installed_snaps.stdout'
+
+- name: Install LXD
+  command:
+    argv:
+      - /usr/bin/snap
+      - install
+      - lxd
+      - --cohort=+
+      - --channel=latest/stable
+  when: '"lxd" not in installed_snaps.stdout'
+
+- name: LXD info
+  command: 'snap info lxd'
+  register: lxd_info
+
+- name: Ensure LXD cohort
+  command:
+    argv:
+      - /usr/bin/snap
+      - refresh
+      - lxd
+      - --cohort=+
+  when: '"in-cohort" not in lxd_info.stdout'
+
+- name: Ensure correct LXD channel
+  command:
+    argv:
+      - snap
+      - refresh
+      - lxd
+      - --channel=latest/stable
+      - --cohort=+
+  when: '"tracking:     latest/stable" not in lxd_info.stdout'
+
+- name: Configure network interface
+  template:
+    src: 00-installer-config.yaml.j2
+    dest: /etc/netplan/00-installer-config.yaml
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Apply network configuration
+  command: netplan apply

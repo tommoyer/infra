@@ -1,0 +1,9 @@
+---
+# tasks file for base-config
+
+- name: Disable password authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'

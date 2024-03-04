@@ -1,0 +1,8 @@
+network:
+  ethernets:
+    {{ main_interface }}:
+      dhcp4: true
+    {{ microovn_interface }}:
+      dhcp6: false
+      accept-ra: 0
+  version: 2
