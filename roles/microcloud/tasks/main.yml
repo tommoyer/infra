@@ -12,7 +12,7 @@
       - install
       - microcloud
       - --cohort="+"
-      - --channel=latest/stable
+      - --channel={{ microcloud_version }}
   when: '"microcloud" not in installed_snaps.stdout'
 
 - name: Install microceph
@@ -22,7 +22,7 @@
       - install
       - microceph
       - --cohort=+
-      - --channel=quincy/stable
+      - --channel={{ microceph_version }}
   when: '"microceph" not in installed_snaps.stdout'
 
 - name: Install microovn
@@ -32,7 +32,7 @@
       - install
       - microovn
       - --cohort=+
-      - --channel=22.03/stable
+      - --channel={{ microovn_version }}
   when: '"microovn" not in installed_snaps.stdout'
 
 - name: Install LXD
@@ -42,7 +42,7 @@
       - install
       - lxd
       - --cohort=+
-      - --channel=latest/stable
+      - --channel={{ lxd_version }}
   when: '"lxd" not in installed_snaps.stdout'
 
 - name: LXD info
@@ -66,7 +66,7 @@
       - lxd
       - --channel=latest/stable
       - --cohort=+
-  when: '"tracking:     latest/stable" not in lxd_info.stdout'
+  when: '"tracking:     {{ lxd_version }}" not in lxd_info.stdout'
 
 - name: Configure network interface
   template:

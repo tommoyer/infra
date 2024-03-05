@@ -4,10 +4,12 @@
   roles:
     - base-config
 
-# - hosts: cloud
-#   become: true
-#   roles:
-#     - microcloud
+- hosts: cloud
+  become: true
+  vars:
+    - versions.yml
+  roles:
+    - microcloud
 
 - hosts: auth_server
   become: true
