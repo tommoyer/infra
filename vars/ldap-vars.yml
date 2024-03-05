@@ -1,0 +1,5 @@
+ldap_org_name: 'moyer'
+ldap_domain: 'moyer.wtf'
+ldap_base_dn: 'dc=moyer,dc=wtf'
+ldap_admin_cn: 'cn=admin'
+ldap_uri: 'ldap://auth.moyer.wtf'

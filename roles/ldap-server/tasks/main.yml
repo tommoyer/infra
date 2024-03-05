@@ -1,0 +1,204 @@
+---
+# tasks file for ldap-server
+
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - debconf-utils
+    state: latest
+
+- name: Set slapd/password2
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/password2
+    value: 'admin'
+    vtype: password
+
+- name: Set slapd/internal/adminpw
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/internal/adminpw
+    value: 'admin'
+    vtype: password
+
+- name: Set slapd/password1
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/password1
+    value: 'admin'
+    vtype: password
+
+- name: Set slapd/internal/generated_adminpw
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/internal/generated_adminpw
+    value: 'admin'
+    vtype: password
+
+- name: Set slapd/postinst_error
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/postinst_error
+    value: ''
+    vtype: note
+
+- name: Set slapd/invalid_config
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/invalid_config
+    value: 'true'
+    vtype: boolean
+
+- name: Set slapd/upgrade_slapcat_failure
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/upgrade_slapcat_failure
+    value: ''
+    vtype: error
+
+- name: Set shared/organization
+  ansible.builtin.debconf:
+    name: slapd
+    question: shared/organization
+    value: '{{ ldap_org_name }}'
+    vtype: string
+
+- name: Set slapd/domain
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/domain
+    value: '{{ ldap_domain }}'
+    vtype: string
+
+- name: Set slapd/password_mismatch
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/password_mismatch
+    value: ''
+    vtype: note
+
+- name: Set slapd/dump_database
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/dump_database
+    value: 'when needed'
+    vtype: select
+
+- name: Set slapd/no_configuration
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/no_configuration
+    value: 'false'
+    vtype: boolean
+
+- name: Set slapd/purge_database
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/purge_database
+    value: 'false'
+    vtype: boolean
+
+- name: Set slapd/move_old_database
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/move_old_database
+    value: 'true'
+    vtype: boolean
+
+- name: Set slapd/dump_database_destdir
+  ansible.builtin.debconf:
+    name: slapd
+    question: slapd/dump_database_destdir
+    value: '/var/backups/slapd-VERSION'
+    vtype: string
+
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - slapd
+      - ldap-utils
+      - python3-ldap
+    state: latest
+
+- name: Generate slapd config
+  template:
+    src: config.ldif.j2
+    dest: /root/config.ldif
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Stop slapd
+  systemd_service:
+    name: slapd
+    state: stopped
+
+- name: Remove existing slapd config
+  file:
+    path: /etc/ldap/slapd.d
+    state: absent
+
+- name: Create base config directory
+  file:
+    path: /etc/ldap/slapd.d
+    state: directory
+    owner: openldap
+    group: openldap
+
+- name: Load slapd config
+  command:
+    argv:
+      - /usr/sbin/slapadd
+      - -F
+      - /etc/ldap/slapd.d
+      - -b
+      - cn=config
+      - -l
+      - /root/config.ldif
+
+- name: Update file permissions for slapd config
+  file:
+    path: /etc/ldap/slapd.d
+    state: directory
+    recurse: yes
+    owner: openldap
+    group: openldap
+
+- name: Start and enable slapd
+  systemd_service:
+    name: slapd
+    state: started
+    enabled: true
+
+- name: Set search base
+  lineinfile:
+    path: /etc/ldap/ldap.conf
+    state: present
+    regexp: '^#BASE'
+    line: 'BASE {{ ldap_base_dn }}'
+
+- name: Set URI
+  lineinfile:
+    path: /etc/ldap/ldap.conf
+    state: present
+    regexp: '^#URI'
+    line: 'URI {{ ldap_uri }}'
+
+- name: Clean up files
+  file:
+    path: /root/config.ldif
+    state: absent
+
+- name: Create users OU
+  community.general.ldap_entry:
+    dn: 'ou=users,{{ ldap_base_dn }}'
+    objectClass: organizationalUnit
+    bind_dn: '{{ ldap_admin_cn }},{{ ldap_base_dn }}'
+    bind_pw: '{{ ldap_admin_password }}'
+
+- name: Create groups OU
+  community.general.ldap_entry:
+    dn: 'ou=groups,{{ ldap_base_dn }}'
+    objectClass: organizationalUnit
+    bind_dn: '{{ ldap_admin_cn }},{{ ldap_base_dn }}'
+    bind_pw: '{{ ldap_admin_password }}'

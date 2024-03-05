@@ -28,7 +28,7 @@
 - name: Install microovn
   command:
     argv:
-      - snap
+      - /usr/bin/snap
       - install
       - microovn
       - --cohort=+
@@ -46,7 +46,7 @@
   when: '"lxd" not in installed_snaps.stdout'
 
 - name: LXD info
-  command: 'snap info lxd'
+  command: '/usr/bin/snap info lxd'
   register: lxd_info
 
 - name: Ensure LXD cohort
@@ -61,7 +61,7 @@
 - name: Ensure correct LXD channel
   command:
     argv:
-      - snap
+      - /usr/bin/snap
       - refresh
       - lxd
       - --channel=latest/stable
@@ -77,4 +77,4 @@
     mode: '0600'
 
 - name: Apply network configuration
-  command: netplan apply
+  command: /usr/sbin/netplan apply

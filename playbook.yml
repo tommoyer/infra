@@ -4,12 +4,15 @@
   roles:
     - base-config
 
-- hosts: cloud
-  become: true
-  roles:
-    - microcloud
+# - hosts: cloud
+#   become: true
+#   roles:
+#     - microcloud
 
-- hosts: auth
+- hosts: auth_server
   become: true
+  vars_files:
+    - ldap-vars.yml
+    - credentials-vault.yml
   roles:
-    - ldap_server
+    - ldap-server
