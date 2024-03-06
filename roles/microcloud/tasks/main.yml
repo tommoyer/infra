@@ -2,7 +2,7 @@
 # tasks file for microcloud
 
 - name: Get list of installed snaps
-  command: 'snap list'
+  command: '/usr/bin/snap list'
   register: installed_snaps
 
 - name: Install microcloud
@@ -66,15 +66,15 @@
       - lxd
       - --channel=latest/stable
       - --cohort=+
-  when: '"tracking:     {{ lxd_version }}" not in lxd_info.stdout'
+  when: '"tracking:     latest/stable" not in lxd_info.stdout'
 
-- name: Configure network interface
-  template:
-    src: 00-installer-config.yaml.j2
-    dest: /etc/netplan/00-installer-config.yaml
-    owner: root
-    group: root
-    mode: '0600'
+# - name: Configure network interface
+#   template:
+#     src: 00-installer-config.yaml.j2
+#     dest: /etc/netplan/00-installer-config.yaml
+#     owner: root
+#     group: root
+#     mode: '0600'
 
-- name: Apply network configuration
-  command: /usr/sbin/netplan apply
+# - name: Apply network configuration
+#   command: /usr/sbin/netplan apply

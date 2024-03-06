@@ -1,20 +1,25 @@
 ---
 - hosts: physical
   become: true
+  vars_files:
+    - vars.yml
+    - encrypted-vars.yml
   roles:
     - base-config
+    - artis3n.tailscale
 
 - hosts: cloud
   become: true
-  vars:
-    - versions.yml
+  vars_files:
+    - vars.yml
+    - encrypted-vars.yml
   roles:
     - microcloud
 
 - hosts: auth_server
   become: true
   vars_files:
-    - ldap-vars.yml
-    - credentials-vault.yml
+    - vars.yml
+    - encrypted-vars.yml
   roles:
     - ldap-server

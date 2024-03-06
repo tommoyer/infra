@@ -1,5 +1,10 @@
 ---
 
+roles:
+  - name: artis3n.tailscale
+    src: https://github.com/artis3n/ansible-role-tailscale
+    version: main
+
 collections:
   # Install a collection from Ansible Galaxy.
   - name: community.general
