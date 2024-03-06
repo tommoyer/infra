@@ -1,0 +1,26 @@
+---
+# tasks file for ldap-client
+
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - sssd-ldap
+      - ldap-utils
+    state: latest
+
+- name: Generate sssd config
+  template:
+    src: sssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Start and enable sssd
+  systemd_service:
+    name: sssd
+    state: started
+    enabled: true
+
+- name: Enable mkhomedir
+  command: pam-auth-update --enable mkhomedir

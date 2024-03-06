@@ -118,6 +118,7 @@
       - slapd
       - ldap-utils
       - python3-ldap
+      - ldapscripts
     state: latest
 
 - name: Generate slapd config
@@ -191,14 +192,39 @@
 
 - name: Create users OU
   community.general.ldap_entry:
-    dn: 'ou=users,{{ ldap_base_dn }}'
+    dn: '{{ ldap_users_ou }},{{ ldap_base_dn }}'
     objectClass: organizationalUnit
     bind_dn: '{{ ldap_admin_cn }},{{ ldap_base_dn }}'
     bind_pw: '{{ ldap_admin_password }}'
 
 - name: Create groups OU
   community.general.ldap_entry:
-    dn: 'ou=groups,{{ ldap_base_dn }}'
+    dn: '{{ ldap_groups_ou }},{{ ldap_base_dn }}'
     objectClass: organizationalUnit
     bind_dn: '{{ ldap_admin_cn }},{{ ldap_base_dn }}'
     bind_pw: '{{ ldap_admin_password }}'
+
+- name: Generate ladpscripts config
+  template:
+    src: ldapscripts.conf.j2
+    dest: /etc/ldapscripts/ldapscripts.conf
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Setup user template
+  copy:
+    src: ldapadduser.template
+    dest: /etc/ldapscripts/ldapadduser.template
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Create password file
+  copy:
+      dest: '/etc/ldapscripts/ldapscripts.passwd'
+      mode: u=r,g=,o=
+      owner: root
+      group: root
+      content: |
+        {{ ldap_admin_password }}

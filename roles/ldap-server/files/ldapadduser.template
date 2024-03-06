@@ -1,0 +1,13 @@
+dn: uid=<user>,<usuffix>,<suffix>
+objectClass: inetOrgPerson
+objectClass: posixAccount
+cn: <user>
+sn: <ask>
+uid: <user>
+uidNumber: <uid>
+gidNumber: <gid>
+homeDirectory: <home>
+loginShell: <ask>
+gecos: <user>
+description: <ask>
+title: <ask>
