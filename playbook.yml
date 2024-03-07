@@ -6,7 +6,7 @@
     - encrypted-vars.yml
   roles:
     - base-config
-     - artis3n.tailscale
+    - artis3n.tailscale
 
 - hosts: cloud
   become: true
