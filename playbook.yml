@@ -6,15 +6,15 @@
     - encrypted-vars.yml
   roles:
     - base-config
-    # - artis3n.tailscale
+     - artis3n.tailscale
 
-# - hosts: cloud
-#   become: true
-#   vars_files:
-#     - vars.yml
-#     - encrypted-vars.yml
-#   roles:
-#     - microcloud
+- hosts: cloud
+  become: true
+  vars_files:
+    - vars.yml
+    - encrypted-vars.yml
+  roles:
+    - microcloud
 
 - hosts: auth_server
   become: true
@@ -24,7 +24,7 @@
   roles:
     - ldap-server
 
-- hosts: auth_client
+- hosts: all
   become: true
   vars_files:
     - vars.yml
