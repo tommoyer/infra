@@ -1,0 +1,9 @@
+dn: cn=config
+replace: olcTLSCACertificateFile
+olcTLSCACertificateFile: /etc/ssl/certs/chain1.pem
+-
+replace: olcTLSCertificateKeyFile
+olcTLSCertificateKeyFile: /etc/ldap/privkey1.pem
+-
+replace: olcTLSCertificateFile
+olcTLSCertificateFile: /etc/ldap/cert1.pem

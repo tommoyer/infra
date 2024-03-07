@@ -221,10 +221,47 @@
     mode: 0600
 
 - name: Create password file
+  shell: echo -n {{ ldap_admin_password }} > /etc/ldapscripts/ldapscripts.passwd
+
+- name: Copy certinfo.ldif to server
   copy:
-      dest: '/etc/ldapscripts/ldapscripts.passwd'
-      mode: u=r,g=,o=
-      owner: root
-      group: root
-      content: |
-        {{ ldap_admin_password }}
+    src: certinfo.ldif
+    dest: /root/certinfo.ldif
+
+- name: Add certinfo.ldif to LDAP configuration
+  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/certinfo.ldif
+
+- name: Clean up files
+  file:
+    path: /root/certinfo.ldif
+    state: absent
+
+- name: Ensure correct ownership
+  file:
+    path: /etc/ldap/cert1.pem
+    owner: openldap
+    group: openldap
+
+- name: Ensure correct ownership
+  file:
+    path: /etc/ldap/privkey1.pem
+    owner: openldap
+    group: openldap
+
+- name: Ensure correct ownership
+  file:
+    path: /etc/ssl/certs/chain1.pem
+    owner: root
+    group: root
+
+- name: Ensure ldaps is enabled
+  lineinfile:
+    path: /etc/default/slapd
+    state: present
+    regexp: '^SLAPD_SERVICES'
+    line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
+
+- name: Restart slapd
+  systemd_service:
+    name: slapd
+    state: restarted

@@ -23,4 +23,21 @@
     enabled: true
 
 - name: Enable mkhomedir
-  command: pam-auth-update --enable mkhomedir
+  command: pam-auth-update --enable mkhomedir --force
+
+- name: Add arguments ot mkhomedir
+  pamd:
+    name: common-session
+    type: session
+    control: optional
+    module_path: pam_mkhomedir.so
+    module_arguments: skel=/etc/skel/ umask=0022
+    state: args_present
+
+- name: Setup sudoers
+  copy:
+    src: sudoers
+    dest: /etc/sudoers.d/sudoers
+    owner: root
+    group: root
+    mode: u=r,g=r,o=
