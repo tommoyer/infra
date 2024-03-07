@@ -15,3 +15,7 @@ microcloud_version: latest/stable
 microceph_version: reef/stable
 microovn_version: 22.03/stable
 lxd_version: latest/stable
+
+# Tailscale
+
+tailscale_args: "--operator=tmoyer_l"
