@@ -41,3 +41,38 @@
     owner: root
     group: root
     mode: u=r,g=r,o=
+
+- name: Generate ldap client config
+  template:
+    src: ldap.conf.j2
+    dest: /etc/ldap/ldap.conf
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=r
+
+- name: SSH Key search script
+  copy:
+    src: ldap-ssh-publickey.sh
+    dest: /usr/local/bin/ldap-ssh-publickey.sh
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
+- name: Enable LDAP search for SSH Key
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^##AuthorizedKeysCommand'
+    line: 'AuthorizedKeysCommand /usr/local/bin/ldap-ssh-publickey.sh'
+
+- name: Enable LDAP search for SSH Key
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^##AuthorizedKeysCommandUser'
+    line: 'AuthorizedKeysCommandUser nobody'
+
+- name: Restart SSH
+  systemd_service:
+    name: sshd
+    state: restarted

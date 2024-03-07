@@ -1,6 +1,7 @@
 dn: uid=<user>,<usuffix>,<suffix>
 objectClass: inetOrgPerson
 objectClass: posixAccount
+objectClass: ldapPublicKey
 cn: <user>
 sn: <ask>
 uid: <user>
