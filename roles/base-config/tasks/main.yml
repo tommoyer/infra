@@ -7,3 +7,9 @@
     state: present
     regexp: '^#?PasswordAuthentication'
     line: 'PasswordAuthentication no'
+
+- name: Install core packages
+  package:
+    name:
+      - zsh
+      - squid-deb-proxy-client
