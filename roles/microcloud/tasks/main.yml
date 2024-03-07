@@ -68,13 +68,16 @@
       - --cohort=+
   when: '"tracking:     latest/stable" not in lxd_info.stdout'
 
-# - name: Configure network interface
-#   template:
-#     src: 00-installer-config.yaml.j2
-#     dest: /etc/netplan/00-installer-config.yaml
-#     owner: root
-#     group: root
-#     mode: '0600'
+- name: Configure network interface
+  template:
+    src: 00-installer-config.yaml.j2
+    dest: /etc/netplan/00-installer-config.yaml
+    owner: root
+    group: root
+    mode: '0600'
 
-# - name: Apply network configuration
-#   command: /usr/sbin/netplan apply
+- name: Apply network configuration
+  command: /usr/sbin/netplan apply
+
+- name: Ensure secondary network interface is up
+  command: ip link set {{ microovn_interface }} up
