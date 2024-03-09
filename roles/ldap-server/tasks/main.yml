@@ -236,23 +236,29 @@
     path: /root/certinfo.ldif
     state: absent
 
-- name: Ensure correct ownership
-  file:
-    path: /etc/ldap/cert1.pem
-    owner: openldap
+- name: Copy cert
+  copy:
+    src: ssl/cert.pem
+    dest: /etc/ldap/cert.pem
     group: openldap
-
-- name: Ensure correct ownership
-  file:
-    path: /etc/ldap/privkey1.pem
     owner: openldap
-    group: openldap
+    mode: u=rw,g=rw,o=r
 
-- name: Ensure correct ownership
-  file:
-    path: /etc/ssl/certs/chain1.pem
+- name: Copy key
+  copy:
+    src: ssl/privkey.pem
+    dest: /etc/ldap/privkey.pem
+    group: openldap
+    owner: openldap
+    mode: u=rw,g=rw,o=
+
+- name: Copy CA cert
+  copy:
+    src: ssl/chain.pem
+    dest: /etc/ssl/certs/chain.pem
     owner: root
     group: root
+    mode: u=rw,g=rw,o=r
 
 - name: Ensure ldaps is enabled
   lineinfile:

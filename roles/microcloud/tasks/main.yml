@@ -81,3 +81,6 @@
 
 - name: Ensure secondary network interface is up
   command: ip link set {{ microovn_interface }} up
+
+- name: Set controlling group for LXD
+  command: /usr/bin/snap set lxd daemon.user.group={{ ldap_lxd_group }}

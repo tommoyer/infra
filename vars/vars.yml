@@ -19,3 +19,7 @@ lxd_version: latest/stable
 # Tailscale
 
 tailscale_args: "--operator=tmoyer_l"
+
+# LXD
+
+ldap_lxd_group: lxdusers
