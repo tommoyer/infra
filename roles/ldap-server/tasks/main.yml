@@ -121,6 +121,30 @@
       - ldapscripts
     state: latest
 
+- name: Copy cert
+  copy:
+    src: ssl/cert.pem
+    dest: /etc/ldap/cert.pem
+    group: openldap
+    owner: openldap
+    mode: u=rw,g=rw,o=r
+
+- name: Copy key
+  copy:
+    src: ssl/privkey.pem
+    dest: /etc/ldap/privkey.pem
+    group: openldap
+    owner: openldap
+    mode: u=rw,g=rw,o=
+
+- name: Copy CA cert
+  copy:
+    src: ssl/chain.pem
+    dest: /etc/ssl/certs/chain.pem
+    owner: root
+    group: root
+    mode: u=rw,g=rw,o=r
+
 - name: Generate slapd config
   template:
     src: config.ldif.j2
@@ -235,30 +259,6 @@
   file:
     path: /root/certinfo.ldif
     state: absent
-
-- name: Copy cert
-  copy:
-    src: ssl/cert.pem
-    dest: /etc/ldap/cert.pem
-    group: openldap
-    owner: openldap
-    mode: u=rw,g=rw,o=r
-
-- name: Copy key
-  copy:
-    src: ssl/privkey.pem
-    dest: /etc/ldap/privkey.pem
-    group: openldap
-    owner: openldap
-    mode: u=rw,g=rw,o=
-
-- name: Copy CA cert
-  copy:
-    src: ssl/chain.pem
-    dest: /etc/ssl/certs/chain.pem
-    owner: root
-    group: root
-    mode: u=rw,g=rw,o=r
 
 - name: Ensure ldaps is enabled
   lineinfile:
