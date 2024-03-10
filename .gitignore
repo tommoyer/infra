@@ -1,2 +1,3 @@
 ansible.log
 roles/artis3n.tailscale
+ssl/
