@@ -8,6 +8,13 @@
       - ldap-utils
     state: latest
 
+- name: Check for ssl folder
+  delegate_to: localhost
+  become: false
+  stat:
+    path: ./ssl
+  register: ssl_folder
+
 - name: Generate sssd config
   template:
     src: sssd.conf.j2
@@ -57,6 +64,7 @@
     owner: root
     group: root
     mode: u=rw,g=rw,o=r
+  when: ssl_folder.stat.exists
 
 - name: SSH Key search script
   copy:

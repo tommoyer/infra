@@ -1,6 +1,13 @@
 ---
 # tasks file for ldap-server
 
+- name: Check for ssl folder
+  delegate_to: localhost
+  become: false
+  stat:
+    path: ./ssl
+  register: ssl_folder
+
 - name: Install packages
   ansible.builtin.package:
     name:
@@ -128,6 +135,7 @@
     group: openldap
     owner: openldap
     mode: u=rw,g=rw,o=r
+  when: ssl_folder.stat.exists
 
 - name: Copy key
   copy:
@@ -136,6 +144,7 @@
     group: openldap
     owner: openldap
     mode: u=rw,g=rw,o=
+  when: ssl_folder.stat.exists
 
 - name: Copy CA cert
   copy:
@@ -144,6 +153,7 @@
     owner: root
     group: root
     mode: u=rw,g=rw,o=r
+  when: ssl_folder.stat.exists
 
 - name: Generate slapd config
   template:
