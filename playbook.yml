@@ -6,6 +6,13 @@
     - encrypted-vars.yml
   roles:
     - base-config
+
+- hosts: tailnet
+  become: true
+  vars_files:
+    - vars.yml
+    - encrypted-vars.yml
+  roles:
     - artis3n.tailscale
 
 - hosts: auth_server
@@ -31,3 +38,43 @@
     - encrypted-vars.yml
   roles:
     - microcloud
+
+# - hosts: amp
+#   become: true
+#   vars_files:
+#     - vars.yml
+#     - encrypted-vars.yml
+#   roles:
+#     - amp
+
+# - hosts: plex
+#   become: true
+#   vars_files:
+#     - vars.yml
+#     - encrypted-vars.yml
+#   roles:
+#     - plex
+
+# - hosts: pkg-proxy
+#   become: true
+#   vars_files:
+#     - vars.yml
+#     - encrypted-vars.yml
+#   roles:
+#     - pkg-proxy
+
+# - hosts: syncthing
+#   become: true
+#   vars_files:
+#     - vars.yml
+#     - encrypted-vars.yml
+#   roles:
+#     - syncthing
+
+# - hosts: www
+#   become: true
+#   vars_files:
+#     - vars.yml
+#     - encrypted-vars.yml
+#   roles:
+#     - www

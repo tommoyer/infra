@@ -2,11 +2,11 @@
 # tasks file for microcloud
 
 - name: Get list of installed snaps
-  command: '/usr/bin/snap list'
+  ansible.builtin.command: '/usr/bin/snap list'
   register: installed_snaps
 
 - name: Install microcloud
-  command: 
+  ansible.builtin.command: 
     argv:
       - /usr/bin/snap
       - install
@@ -16,7 +16,7 @@
   when: '"microcloud" not in installed_snaps.stdout'
 
 - name: Install microceph
-  command:
+  ansible.builtin.command:
     argv:
       - /usr/bin/snap
       - install
@@ -26,7 +26,7 @@
   when: '"microceph" not in installed_snaps.stdout'
 
 - name: Install microovn
-  command:
+  ansible.builtin.command:
     argv:
       - /usr/bin/snap
       - install
@@ -36,7 +36,7 @@
   when: '"microovn" not in installed_snaps.stdout'
 
 - name: Install LXD
-  command:
+  ansible.builtin.command:
     argv:
       - /usr/bin/snap
       - install
@@ -46,11 +46,11 @@
   when: '"lxd" not in installed_snaps.stdout'
 
 - name: LXD info
-  command: '/usr/bin/snap info lxd'
+  ansible.builtin.command: '/usr/bin/snap info lxd'
   register: lxd_info
 
 - name: Ensure LXD cohort
-  command:
+  ansible.builtin.command:
     argv:
       - /usr/bin/snap
       - refresh
@@ -59,7 +59,7 @@
   when: '"in-cohort" not in lxd_info.stdout'
 
 - name: Ensure correct LXD channel
-  command:
+  ansible.builtin.command:
     argv:
       - /usr/bin/snap
       - refresh
@@ -69,7 +69,7 @@
   when: '"tracking:     latest/stable" not in lxd_info.stdout'
 
 - name: Configure network interface
-  template:
+  ansible.builtin.template:
     src: 00-installer-config.yaml.j2
     dest: /etc/netplan/00-installer-config.yaml
     owner: root
@@ -77,10 +77,10 @@
     mode: '0600'
 
 - name: Apply network configuration
-  command: /usr/sbin/netplan apply
+  ansible.builtin.command: /usr/sbin/netplan apply
 
 - name: Ensure secondary network interface is up
-  command: ip link set {{ microovn_interface }} up
+  ansible.builtin.command: ip link set {{ microovn_interface }} up
 
 - name: Set controlling group for LXD
-  command: /usr/bin/snap set lxd daemon.user.group={{ ldap_lxd_group }}
+  ansible.builtin.command: /usr/bin/snap set lxd daemon.user.group={{ ldap_lxd_group }}

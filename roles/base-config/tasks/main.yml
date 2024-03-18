@@ -2,7 +2,7 @@
 # tasks file for base-config
 
 - name: Disable password authentication
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     state: present
     regexp: '^#?PasswordAuthentication'
@@ -14,7 +14,7 @@
     cache_valid_time: 3600
 
 - name: Install core packages
-  package:
+  ansible.builtin.package:
     name:
       - zsh
       - squid-deb-proxy-client

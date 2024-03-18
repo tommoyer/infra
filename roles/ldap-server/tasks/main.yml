@@ -4,7 +4,7 @@
 - name: Check for ssl folder
   delegate_to: localhost
   become: false
-  stat:
+  ansible.builtin.stat:
     path: ./ssl
   register: ssl_folder
 
@@ -129,7 +129,7 @@
     state: latest
 
 - name: Copy cert
-  copy:
+  ansible.builtin.copy:
     src: ssl/cert.pem
     dest: /etc/ldap/cert.pem
     group: openldap
@@ -138,7 +138,7 @@
   when: ssl_folder.stat.exists
 
 - name: Copy key
-  copy:
+  ansible.builtin.copy:
     src: ssl/privkey.pem
     dest: /etc/ldap/privkey.pem
     group: openldap
@@ -147,7 +147,7 @@
   when: ssl_folder.stat.exists
 
 - name: Copy CA cert
-  copy:
+  ansible.builtin.copy:
     src: ssl/chain.pem
     dest: /etc/ssl/certs/chain.pem
     owner: root
@@ -156,7 +156,7 @@
   when: ssl_folder.stat.exists
 
 - name: Generate slapd config
-  template:
+  ansible.builtin.template:
     src: config.ldif.j2
     dest: /root/config.ldif
     owner: root
@@ -164,24 +164,24 @@
     mode: 0600
 
 - name: Stop slapd
-  systemd_service:
+  ansible.builtin.systemd_service:
     name: slapd
     state: stopped
 
 - name: Remove existing slapd config
-  file:
+  ansible.builtin.file:
     path: /etc/ldap/slapd.d
     state: absent
 
 - name: Create base config directory
-  file:
+  ansible.builtin.file:
     path: /etc/ldap/slapd.d
     state: directory
     owner: openldap
     group: openldap
 
 - name: Load slapd config
-  command:
+  ansible.builtin.command:
     argv:
       - /usr/sbin/slapadd
       - -F
@@ -192,7 +192,7 @@
       - /root/config.ldif
 
 - name: Update file permissions for slapd config
-  file:
+  ansible.builtin.file:
     path: /etc/ldap/slapd.d
     state: directory
     recurse: yes
@@ -200,27 +200,27 @@
     group: openldap
 
 - name: Start and enable slapd
-  systemd_service:
+  ansible.builtin.systemd_service:
     name: slapd
     state: started
     enabled: true
 
 - name: Set search base
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ldap/ldap.conf
     state: present
     regexp: '^#BASE'
     line: 'BASE {{ ldap_base_dn }}'
 
 - name: Set URI
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ldap/ldap.conf
     state: present
     regexp: '^#URI'
     line: 'URI {{ ldap_uri }}'
 
 - name: Clean up files
-  file:
+  ansible.builtin.file:
     path: /root/config.ldif
     state: absent
 
@@ -239,7 +239,7 @@
     bind_pw: '{{ ldap_admin_password }}'
 
 - name: Generate ladpscripts config
-  template:
+  ansible.builtin.template:
     src: ldapscripts.conf.j2
     dest: /etc/ldapscripts/ldapscripts.conf
     owner: root
@@ -247,7 +247,7 @@
     mode: 0600
 
 - name: Setup user template
-  copy:
+  ansible.builtin.copy:
     src: ldapadduser.template
     dest: /etc/ldapscripts/ldapadduser.template
     owner: root
@@ -255,29 +255,29 @@
     mode: 0600
 
 - name: Create password file
-  shell: echo -n {{ ldap_admin_password }} > /etc/ldapscripts/ldapscripts.passwd
+  ansible.builtin.shell: echo -n {{ ldap_admin_password }} > /etc/ldapscripts/ldapscripts.passwd
 
 - name: Copy certinfo.ldif to server
-  copy:
+  ansible.builtin.copy:
     src: certinfo.ldif
     dest: /root/certinfo.ldif
 
 - name: Add certinfo.ldif to LDAP configuration
-  command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/certinfo.ldif
+  ansible.builtin.command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/certinfo.ldif
 
 - name: Clean up files
-  file:
+  ansible.builtin.file:
     path: /root/certinfo.ldif
     state: absent
 
 - name: Ensure ldaps is enabled
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/slapd
     state: present
     regexp: '^SLAPD_SERVICES'
     line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
 
 - name: Restart slapd
-  systemd_service:
+  ansible.builtin.systemd_service:
     name: slapd
     state: restarted

@@ -2,10 +2,10 @@
 # LDAP Configuration
 
 ldap_org_name: 'moyer'
-ldap_domain: 'moyer.wtf'
+ldap_domain: 'internal.moyer.wtf'
 ldap_base_dn: 'dc=moyer,dc=wtf'
 ldap_admin_cn: 'cn=admin'
-ldap_uri: 'ldap://auth.moyer.wtf'
+ldap_uri: 'ldap://auth.internal.moyer.wtf'
 ldap_users_ou: 'ou=users'
 ldap_groups_ou: 'ou=groups'
 

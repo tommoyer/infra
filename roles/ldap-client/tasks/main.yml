@@ -11,12 +11,12 @@
 - name: Check for ssl folder
   delegate_to: localhost
   become: false
-  stat:
+  ansible.builtin.stat:
     path: ./ssl
   register: ssl_folder
 
 - name: Generate sssd config
-  template:
+  ansible.builtin.template:
     src: sssd.conf.j2
     dest: /etc/sssd/sssd.conf
     owner: root
@@ -24,16 +24,16 @@
     mode: 0600
 
 - name: Start and enable sssd
-  systemd_service:
+  ansible.builtin.systemd_service:
     name: sssd
     state: started
     enabled: true
 
 - name: Enable mkhomedir
-  command: pam-auth-update --enable mkhomedir --force
+  ansible.builtin.command: pam-auth-update --enable mkhomedir --force
 
 - name: Add arguments ot mkhomedir
-  pamd:
+  community.general.pamd:
     name: common-session
     type: session
     control: optional
@@ -42,7 +42,7 @@
     state: args_present
 
 - name: Setup sudoers
-  copy:
+  ansible.builtin.copy:
     src: sudoers
     dest: /etc/sudoers.d/sudoers
     owner: root
@@ -50,7 +50,7 @@
     mode: u=r,g=r,o=
 
 - name: Generate ldap client config
-  template:
+  ansible.builtin.template:
     src: ldap.conf.j2
     dest: /etc/ldap/ldap.conf
     owner: root
@@ -58,7 +58,7 @@
     mode: u=rw,g=r,o=r
 
 - name: Copy CA cert
-  copy:
+  ansible.builtin.copy:
     src: ssl/chain.pem
     dest: /etc/ssl/certs/chain.pem
     owner: root
@@ -67,7 +67,7 @@
   when: ssl_folder.stat.exists
 
 - name: SSH Key search script
-  copy:
+  ansible.builtin.copy:
     src: ldap-ssh-publickey.sh
     dest: /usr/local/bin/ldap-ssh-publickey.sh
     owner: root
@@ -75,20 +75,20 @@
     mode: u=rwx,g=rx,o=rx
 
 - name: Enable LDAP search for SSH Key
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     state: present
     regexp: '^##AuthorizedKeysCommand'
     line: 'AuthorizedKeysCommand /usr/local/bin/ldap-ssh-publickey.sh'
 
 - name: Enable LDAP search for SSH Key
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     state: present
     regexp: '^##AuthorizedKeysCommandUser'
     line: 'AuthorizedKeysCommandUser nobody'
 
 - name: Restart SSH
-  systemd_service:
+  ansible.builtin.systemd_service:
     name: sshd
     state: restarted
