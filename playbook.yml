@@ -21,7 +21,7 @@
     - vars.yml
     - encrypted-vars.yml
   roles:
-    - ldap-server
+    - auth-server
 
 - hosts: all
   become: true
