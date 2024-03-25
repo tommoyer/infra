@@ -1,13 +1,9 @@
 ---
 - hosts: auth_stage
-  become: yes
-  tasks:
-    # Install and initialize the CA server.
-    # There are a lot of configuration options, see the step_ca README for details
-    - name: Install step-ca
-      include_role:
-        name: maxhoesel.smallstep.step_ca
-      vars:
-        step_ca_name: HiveMind Internal CA
-        step_ca_root_password: "password"
-        step_ca_intermediate_password: "password"
+  become: true
+  vars_files:
+    - vars.yml
+    - encrypted-vars.yml
+  roles:
+    - base-config
+    - auth-server

@@ -1,13 +1,6 @@
 ---
 # tasks file for ldap-server
 
-- name: Check for ssl folder
-  delegate_to: localhost
-  become: false
-  ansible.builtin.stat:
-    path: ./ssl
-  register: ssl_folder
-
 - name: Install packages
   ansible.builtin.package:
     name:
@@ -128,33 +121,6 @@
       - ldapscripts
     state: latest
 
-- name: Copy cert
-  ansible.builtin.copy:
-    src: ssl/cert.pem
-    dest: /etc/ldap/cert.pem
-    group: openldap
-    owner: openldap
-    mode: u=rw,g=rw,o=r
-  when: ssl_folder.stat.exists
-
-- name: Copy key
-  ansible.builtin.copy:
-    src: ssl/privkey.pem
-    dest: /etc/ldap/privkey.pem
-    group: openldap
-    owner: openldap
-    mode: u=rw,g=rw,o=
-  when: ssl_folder.stat.exists
-
-- name: Copy CA cert
-  ansible.builtin.copy:
-    src: ssl/chain.pem
-    dest: /etc/ssl/certs/chain.pem
-    owner: root
-    group: root
-    mode: u=rw,g=rw,o=r
-  when: ssl_folder.stat.exists
-
 - name: Generate slapd config
   ansible.builtin.template:
     src: config.ldif.j2
@@ -257,27 +223,46 @@
 - name: Create password file
   ansible.builtin.shell: echo -n {{ ldap_admin_password }} > /etc/ldapscripts/ldapscripts.passwd
 
-- name: Copy certinfo.ldif to server
-  ansible.builtin.copy:
-    src: certinfo.ldif
-    dest: /root/certinfo.ldif
+# - name: Copy certinfo.ldif to server
+#   ansible.builtin.copy:
+#     src: certinfo.ldif
+#     dest: /root/certinfo.ldif
 
-- name: Add certinfo.ldif to LDAP configuration
-  ansible.builtin.command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/certinfo.ldif
+# - name: Add certinfo.ldif to LDAP configuration
+#   ansible.builtin.command: ldapmodify -Y EXTERNAL -H ldapi:/// -f /root/certinfo.ldif
 
-- name: Clean up files
-  ansible.builtin.file:
-    path: /root/certinfo.ldif
-    state: absent
+# - name: Clean up files
+#   ansible.builtin.file:
+#     path: /root/certinfo.ldif
+#     state: absent
 
-- name: Ensure ldaps is enabled
-  ansible.builtin.lineinfile:
-    path: /etc/default/slapd
-    state: present
-    regexp: '^SLAPD_SERVICES'
-    line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
+# - name: Ensure ldaps is enabled
+#   ansible.builtin.lineinfile:
+#     path: /etc/default/slapd
+#     state: present
+#     regexp: '^SLAPD_SERVICES'
+#     line: 'SLAPD_SERVICES="ldap:/// ldapi:/// ldaps:///"'
 
 - name: Restart slapd
   ansible.builtin.systemd_service:
     name: slapd
     state: restarted
+
+- name: Pull default Docker image
+  community.docker.docker_image:
+    name: "{{ ca_container_image }}"
+    source: pull
+
+- name: Create CA container
+  community.docker.docker_container:
+    name: '{{ ca_container_name }}'
+    image: '{{ ca_container_image }}'
+    env:
+      DOCKER_STEPCA_INIT_NAME: '{{ ca_name }}'
+      DOCKER_STEPCA_INIT_DNS_NAMES: ' {{ ca_dns_names }}'
+      DOCKER_STEPCA_INIT_PASSWORD: '{{ ca_admin_password }}'
+    published_ports:
+      - '{{ ca_listen_port }}:{{ ca_listen_port }}'
+    volumes:
+      - step:/home/step
+    state: started
