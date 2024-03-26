@@ -1,0 +1,17 @@
+---
+# tasks file for ca-client
+- name: Get CA fingerprint
+  community.docker.docker_container_exec:
+    container: '{{ ca_container_name }}'
+    docker_host: '{{ ca_docker_host }}:{{ docker_host_port }}'
+    command: /bin/bash -c "step certificate fingerprint certs/root_ca.crt"
+  register: result
+
+- name: Print stdout
+  ansible.builtin.debug:
+    var: result.stdout
+
+- name: Bootstrap CA on this machine
+  ansible.builtin.command:
+    cmd: '/usr/bin/step ca bootstrap --ca-url https://{{ ca_host }}:{{ ca_listen_port }} --fingerprint {{ result.stdout }}'
+    creates: /root/.step/certs/root_ca.crt
