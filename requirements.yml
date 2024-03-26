@@ -10,6 +10,5 @@ collections:
   - name: community.general
     version: ">7.0.0"
     source: https://galaxy.ansible.com
-  - name: https://github.com/maxhoesel-ansible/ansible-collection-smallstep.git
-    type: git
-    version: main
+  - name: smallstep.cli
+    source: https://galaxy.ansible.com
