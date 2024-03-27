@@ -269,6 +269,34 @@
       - step:/home/step
     state: started
 
+- name: Wait for CA to bootstrap
+  community.docker.docker_container_exec:
+    container: '{{ ca_container_name }}'
+    docker_host: '{{ ca_docker_host }}:{{ docker_host_port }}'
+    command: /bin/bash -c 'while [ ! -f /home/step/certs/root_ca.crt ]; do echo -n . ; sleep 2; done'
+
+- name: Get list of provisioners
+  community.docker.docker_container_exec:
+    container: '{{ ca_container_name }}'
+    docker_host: '{{ ca_docker_host }}:{{ docker_host_port }}'
+    command: /bin/bash -c "step ca provisioner list --ca-url https://localhost:{{ ca_listen_port }}"
+  register: ca_provisioners
+
+- name: Add ACME provisioner
+  community.docker.docker_container_exec:
+    container: '{{ ca_container_name }}'
+    docker_host: '{{ ca_docker_host }}:{{ docker_host_port }}'
+    command: /bin/bash -c "step ca provisioner add acme --type ACME --ca-url https://localhost:{{ ca_listen_port }}"
+  when: '"\"type\": \"ACME\"" not in ca_provisioners.stdout'
+  register: acme_added
+
+- name: Reload CA config
+  community.docker.docker_container_exec:
+    container: '{{ ca_container_name }}'
+    docker_host: '{{ ca_docker_host }}:{{ docker_host_port }}'
+    command: /bin/bash -c "kill -HUP 1"
+  when: acme_added.changed
+
 - name: Bootstrap CA
   ansible.builtin.include_role:
     name: ca-client

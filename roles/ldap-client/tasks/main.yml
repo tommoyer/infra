@@ -8,13 +8,6 @@
       - ldap-utils
     state: latest
 
-- name: Check for ssl folder
-  delegate_to: localhost
-  become: false
-  ansible.builtin.stat:
-    path: ./ssl
-  register: ssl_folder
-
 - name: Generate sssd config
   ansible.builtin.template:
     src: sssd.conf.j2
@@ -56,15 +49,6 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=r
-
-- name: Copy CA cert
-  ansible.builtin.copy:
-    src: ssl/chain.pem
-    dest: /etc/ssl/certs/chain.pem
-    owner: root
-    group: root
-    mode: u=rw,g=rw,o=r
-  when: ssl_folder.stat.exists
 
 - name: SSH Key search script
   ansible.builtin.copy:

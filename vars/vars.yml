@@ -29,7 +29,7 @@ ldap_lxd_group: lxdusers
 ca_container_image: smallstep/step-ca
 ca_container_name: step_ca
 ca_listen_port: 9000
-ca_dns_names: 'lcaolhost,auth.internal.moyer.wtf,auth-stage.lxd'
+ca_dns_names: 'localhost,auth.internal.moyer.wtf,auth-stage.lxd'
 ca_name: 'HiveMind CA'
 ca_docker_host: 'tcp://auth-stage.lxd'
 docker_host_port: 2375
